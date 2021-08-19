@@ -1,5 +1,6 @@
 import json
-from flask import Flask,render_template,request,redirect,flash,url_for
+from flask import Flask, render_template, request, redirect, flash, url_for, jsonify
+from werkzeug.exceptions import abort, InternalServerError
 
 
 def loadClubs():
@@ -46,14 +47,27 @@ def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
+    if placesRequired > 12:
+        raise TooManyPlacesAskedError(club)
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
 
+class TooManyPlacesAskedError(Exception):
+    def __init__(self, club):
+        super().__init__(self)
+        self.club = club
 
 # TODO: Add route for points display
-
+@app.errorhandler(TooManyPlacesAskedError)
+def handle_invalid_usage(error):
+    flash("You can only take 12 places at most.")
+    return render_template('welcome.html', club=error.club, competitions=competitions)
 
 @app.route('/logout')
 def logout():
     return redirect(url_for('index'))
+
+
+
+
