@@ -84,10 +84,29 @@ def test_purchase_places_is_limited_to_available_places():
            ("You can't buy more places than there are available!", False)
 
 
-def test_purchase_places_is_limited_to_points_the_club_has():
+def test_cant_buy_places_if_club_doesnt_have_enough_points():
     competition = mock_competitions[1]
     club = mock_clubs[1]
     required_places = 3
     already_taken_places = 0
     assert server.can_buy_places(club, competition, required_places, already_taken_places) == \
            ("You can't buy more places than you have points!", False)
+
+
+def test_purchasing_places_decreases_the_number_of_points_of_the_club(client):
+    request_form = {
+        "competition": "Competition one",
+        "club": "Club one",
+        "places": "9"
+    }
+    client.post('/purchasePlaces', data=request_form)
+    assert mock_clubs[0]["points"] == 9
+
+
+def test_can_buy_places_return_true_for_valid_parameters():
+    competition = mock_competitions[1]
+    club = mock_clubs[1]
+    required_places = 1
+    already_taken_places = 5
+    assert server.can_buy_places(club, competition, required_places, already_taken_places) == \
+           ('Great-booking complete!', True)
