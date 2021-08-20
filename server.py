@@ -53,21 +53,16 @@ def purchasePlaces():
     if placesRequired > 12 - places_already_taken:
         flash("You can't buy more than twelve places per competition")
         return render_template('welcome.html', club=club, competitions=competitions), 500
+    if placesRequired > int(competition['numberOfPlaces']):
+        flash("You can't buy more places than there are availables!")
+        return render_template('welcome.html', club=club, competitions=competitions), 500
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     competition["places_taken"][club["name"]] = places_already_taken + placesRequired
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
 
-class TooManyPlacesAskedError(Exception):
-    def __init__(self, club):
-        super().__init__(self)
-        self.club = club
 
 # TODO: Add route for points display
-@app.errorhandler(TooManyPlacesAskedError)
-def handle_invalid_usage(error):
-    flash("You can only take 12 places at most.")
-    return render_template('welcome.html', club=error.club, competitions=competitions)
 
 @app.route('/logout')
 def logout():
