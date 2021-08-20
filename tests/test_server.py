@@ -110,3 +110,19 @@ def test_can_buy_places_return_true_for_valid_parameters():
     already_taken_places = 5
     assert server.can_buy_places(club, competition, required_places, already_taken_places) == \
            ('Great-booking complete!', True)
+
+
+def test_login_works_with_valid_identifiants(client):
+    request_form = {
+        "email": "corentin@gmail.com"
+    }
+    response = client.post('/showSummary', data=request_form)
+    assert response.status_code == 200
+
+
+def test_login_sends_an_error_with_invalid_identifiants(client):
+    request_form = {
+        "email": "co@gmail.com"
+    }
+    response = client.post('/showSummary', data=request_form)
+    assert response.status_code == 404
