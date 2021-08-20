@@ -65,3 +65,13 @@ def test_multiple_time_purchase_places_is_limited_to_twelve(client):
     assert first_response.status_code == 200
     second_response = client.post('/purchasePlaces', data=request_forms[1])
     assert second_response.status_code == 500
+
+
+def test_purchase_places_is_limited_to_available_places(client):
+    request_form = {
+        "competition": "Another competition",
+        "club": "A specific club",
+        "places": "9"
+    }
+    response = client.post('/purchasePlaces', data=request_form)
+    assert response.status_code == 500
