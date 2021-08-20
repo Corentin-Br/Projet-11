@@ -12,6 +12,8 @@ def loadClubs():
 def loadCompetitions():
     with open('competitions.json') as comps:
          listOfCompetitions = json.load(comps)['competitions']
+         for competition in listOfCompetitions:
+             competition["places_taken"] = {}
          return listOfCompetitions
 
 
@@ -46,10 +48,13 @@ def book(competition,club):
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
+    places_already_taken = competition["places_taken"].get(club["name"], 0)
     placesRequired = int(request.form['places'])
-    if placesRequired > 12:
-        raise TooManyPlacesAskedError(club)
+    if placesRequired > 12 - places_already_taken:
+        flash("You can't buy more than twelve places per competition")
+        return render_template('welcome.html', club=club, competitions=competitions), 500
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
+    competition["places_taken"][club["name"]] = places_already_taken + placesRequired
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
 
