@@ -48,18 +48,32 @@ def book(competition,club):
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
-    places_already_taken = competition["places_taken"].get(club["name"], 0)
     placesRequired = int(request.form['places'])
-    if placesRequired > 12 - places_already_taken:
+    already_taken_places = competition["places_taken"].get(club["name"], 0)
+    if can_buy_places(club, competition, placesRequired, already_taken_places):
+        competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
+        competition["places_taken"][club["name"]] = already_taken_places + placesRequired
+        status = 200
+    else:
+        status = 500
+    return render_template('welcome.html', club=club, competitions=competitions), status
+
+
+def can_buy_places(club: dict, competition: dict, required_places: int, already_taken_places: int) -> bool:
+    if required_places > 12 - already_taken_places:
         flash("You can't buy more than twelve places per competition")
-        return render_template('welcome.html', club=club, competitions=competitions), 500
-    if placesRequired > int(competition['numberOfPlaces']):
-        flash("You can't buy more places than there are availables!")
-        return render_template('welcome.html', club=club, competitions=competitions), 500
-    competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
-    competition["places_taken"][club["name"]] = places_already_taken + placesRequired
-    flash('Great-booking complete!')
-    return render_template('welcome.html', club=club, competitions=competitions)
+        return False
+    elif required_places > int(competition['numberOfPlaces']):
+        flash("You can't buy more places than there are available!")
+        return False
+    elif required_places > int(club["points"]):
+        flash("You can't buy more places than you have points!")
+        return False
+    else:
+        flash('Great-booking complete!')
+        return True
+
+
 
 
 # TODO: Add route for points display
