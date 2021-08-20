@@ -54,6 +54,7 @@ def purchasePlaces():
     if allowed :
         competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
         competition["places_taken"][club["name"]] = already_taken_places + placesRequired
+        club["points"] = int(club['points']) - placesRequired
     flash(message)
     return render_template('welcome.html', club=club, competitions=competitions)
 
