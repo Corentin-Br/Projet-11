@@ -50,23 +50,23 @@ def purchasePlaces():
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
     already_taken_places = competition["places_taken"].get(club["name"], 0)
-    message, status, allowed = can_buy_places(club, competition, placesRequired, already_taken_places)
+    message, allowed = can_buy_places(club, competition, placesRequired, already_taken_places)
     if allowed :
         competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
         competition["places_taken"][club["name"]] = already_taken_places + placesRequired
     flash(message)
-    return render_template('welcome.html', club=club, competitions=competitions), status
+    return render_template('welcome.html', club=club, competitions=competitions)
 
 
 def can_buy_places(club: dict, competition: dict, required_places: int, already_taken_places:int) -> tuple:
     if required_places > 12 - already_taken_places:
-        return "You can't buy more than twelve places per competition!", 500, False
+        return "You can't buy more than twelve places per competition!", False
     elif required_places > int(competition['numberOfPlaces']):
-        return "You can't buy more places than there are available!", 500, False
+        return "You can't buy more places than there are available!", False
     elif required_places > int(club["points"]):
-        return "You can't buy more places than you have points!", 500, False
+        return "You can't buy more places than you have points!", False
     else:
-        return 'Great-booking complete!', 200, True
+        return 'Great-booking complete!', True
 
 
 
