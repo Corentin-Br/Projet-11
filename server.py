@@ -1,6 +1,6 @@
 import json
-from flask import Flask, render_template, request, redirect, flash, url_for, jsonify
-from werkzeug.exceptions import abort, InternalServerError
+from flask import Flask, render_template, request, redirect, flash, url_for
+import datetime
 
 
 def loadClubs():
@@ -22,6 +22,7 @@ app.secret_key = 'something_special'
 
 competitions = loadCompetitions()
 clubs = loadClubs()
+DATE_PATTERN = "%Y-%m-%d %H:%M:%S"
 
 @app.route('/')
 def index():
@@ -65,6 +66,8 @@ def purchasePlaces():
 
 
 def can_buy_places(club: dict, competition: dict, required_places: int, already_taken_places:int) -> tuple:
+    if datetime.datetime.now() >= datetime.datetime.strptime(competition["date"], DATE_PATTERN):
+        return 'You cannot reserve a competition that already took place!', False
     if required_places > 12 - already_taken_places:
         return "You can't buy more than twelve places per competition!", False
     elif required_places > int(competition['numberOfPlaces']):
