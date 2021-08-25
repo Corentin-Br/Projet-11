@@ -43,7 +43,7 @@ def showSummary():
 
 @app.route('/showpoints')
 def show_points():
-    return render_template('points.html', club=clubs)
+    return render_template('points.html', clubs=clubs)
 
 
 @app.route('/book/<competition>/<club>')
