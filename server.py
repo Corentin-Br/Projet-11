@@ -24,9 +24,11 @@ competitions = loadCompetitions()
 clubs = loadClubs()
 DATE_PATTERN = "%Y-%m-%d %H:%M:%S"
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
@@ -37,6 +39,11 @@ def showSummary():
     else:
         flash("Your email has not been found.")
         return render_template('index.html'), 404
+
+
+@app.route('/showpoints')
+def show_points():
+    return render_template('points.html', club=clubs)
 
 
 @app.route('/book/<competition>/<club>')
@@ -77,10 +84,6 @@ def can_buy_places(club: dict, competition: dict, required_places: int, already_
     else:
         return 'Great-booking complete!', True
 
-
-
-
-# TODO: Add route for points display
 
 @app.route('/logout')
 def logout():
