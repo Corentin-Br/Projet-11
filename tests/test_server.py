@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 
 from application import server
@@ -10,16 +12,26 @@ def client():
         yield client
 
 
+now = datetime.datetime.now()
+tomorrow = now.replace(day=now.day+1).strftime(server.DATE_PATTERN)
+yesterday = now.replace(day=now.day-1).strftime(server.DATE_PATTERN)
+
 mock_competitions = [{
     "name": "Competition one",
-    "date": "2020-03-27 10:00:00",
+    "date": tomorrow,
     "numberOfPlaces": "25",
     "places_taken": {"Club three": 5}
 },
     {
         "name": "Competition two",
-        "date": "2020-03-27 10:00:00",
+        "date": tomorrow,
         "numberOfPlaces": "7",
+        "places_taken": {}
+    },
+    {
+        "name": "Competition three",
+        "date": yesterday,
+        "numberOfPlaces": "50",
         "places_taken": {}
     }
 ]
@@ -126,3 +138,12 @@ def test_login_sends_an_error_with_invalid_identifiants(client):
     }
     response = client.post('/showSummary', data=request_form)
     assert response.status_code == 404
+
+
+def test_cant_buy_places_if_later_than_competition_date():
+    competition = mock_competitions[2]
+    club = mock_clubs[1]
+    required_places = 1
+    already_taken_places = 0
+    assert server.can_buy_places(club, competition, required_places, already_taken_places) == \
+           ('You cannot reserve a competition that already took place!', False)
