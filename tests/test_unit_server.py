@@ -17,9 +17,6 @@ tomorrow = now.replace(day=now.day+1).strftime(server.DATE_PATTERN)
 yesterday = now.replace(day=now.day-1).strftime(server.DATE_PATTERN)
 
 
-
-
-
 @pytest.fixture
 def clubs(monkeypatch):
     mock_clubs = [
@@ -109,8 +106,7 @@ def test_cant_buy_places_if_club_doesnt_have_enough_points(clubs, competitions):
     required_places = 3
     already_taken_places = 0
     assert server.can_buy_places(club, competition, required_places, already_taken_places) == \
-           (f"You don't have enough points for 3 places, you'd need at least 9" \
-               f" points", False)
+           (f"You don't have enough points for 3 places, you'd need at least 9 points", False)
 
 
 def test_purchasing_places_decreases_the_number_of_points_of_the_club(client, clubs, competitions):
@@ -155,3 +151,19 @@ def test_cant_buy_places_if_later_than_competition_date(clubs, competitions):
     already_taken_places = 0
     assert server.can_buy_places(club, competition, required_places, already_taken_places) == \
            ('You cannot reserve a competition that already took place!', False)
+
+
+def test_booking_works_with_valid_club_and_competition(client, clubs, competitions):
+    response = client.get(f'/book/{server.competitions[0]["name"]}/{server.clubs[0]["name"]}')
+    assert response.status_code == 200
+
+
+def test_booking_doesnt_work_with_invalid_competition(client, clubs, competitions):
+    response = client.get(f'/book/no_competition/{server.clubs[0]["name"]}')
+    assert response.status_code == 500
+
+
+def test_booking_doesnt_work_with_invalid_club(client, clubs, competitions):
+    response = client.get(f'/book/{server.competitions[0]["name"]}/no_club')
+    assert response.status_code == 500
+
