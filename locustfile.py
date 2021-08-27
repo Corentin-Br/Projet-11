@@ -17,11 +17,19 @@ class User(HttpUser):
         self.client.get("/showpoints")
 
     @task
+    def book(self):
+        self.client.get("/book/Spring Festival/Simply Lift")
+
+    @task
     def book_place(self):
-        self.client.post("/purchasePlaces", data={"competition": "Spring Festival",
-                                                  "club": "Simply Lift",
-                                                  "places": 1
-                                                  })
+        with self.client.post("/purchasePlaces", data={"competition": "Spring Festival",
+                                                         "club": "Simply Lift",
+                                                         "places": 1
+                                                         }, catch_response=True) as response:
+            if response.status_code == 500:
+                # The purchasePlaces will send errors with the code 500 if the purchase doesn't take place. It is
+                # however a sign that the route works.
+                response.success()
 
     @task
     def logout(self):
