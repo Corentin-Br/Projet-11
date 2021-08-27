@@ -54,7 +54,7 @@ def book(competition,club):
         return render_template('booking.html',club=foundClub,competition=foundCompetition)
     else:
         flash("Something went wrong-please try again")
-        return render_template('welcome.html', club=club, competitions=competitions)
+        return render_template('welcome.html', club=club, competitions=competitions), 500
 
 
 @app.route('/purchasePlaces',methods=['POST'])
@@ -64,12 +64,13 @@ def purchasePlaces():
     placesRequired = int(request.form['places'])
     already_taken_places = competition["places_taken"].get(club["name"], 0)
     message, allowed = can_buy_places(club, competition, placesRequired, already_taken_places)
+    status = 200 if allowed else 500
     if allowed :
         competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
         competition["places_taken"][club["name"]] = already_taken_places + placesRequired
-        club["points"] = int(club['points']) - placesRequired
+        club["points"] = int(club['points']) - 3 * placesRequired
     flash(message)
-    return render_template('welcome.html', club=club, competitions=competitions)
+    return render_template('welcome.html', club=club, competitions=competitions), status
 
 
 def can_buy_places(club: dict, competition: dict, required_places: int, already_taken_places:int) -> tuple:
@@ -79,8 +80,9 @@ def can_buy_places(club: dict, competition: dict, required_places: int, already_
         return "You can't buy more than twelve places per competition!", False
     elif required_places > int(competition['numberOfPlaces']):
         return "You can't buy more places than there are available!", False
-    elif required_places > int(club["points"]):
-        return "You can't buy more places than you have points!", False
+    elif 3 * required_places > int(club["points"]):
+        return f"You don't have enough points for {required_places} places, you'd need at least {required_places * 3}" \
+               f" points", False
     else:
         return 'Great-booking complete!', True
 
