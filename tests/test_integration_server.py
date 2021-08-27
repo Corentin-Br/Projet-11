@@ -11,19 +11,17 @@ def client():
         yield client
 
 
-def test_purchase_places_sends_code_500_if_cant_buy_places(monkeypatch, client, clubs, competitions):
-    monkeypatch.setattr("application.server.can_buy_places", lambda a, b, c, d: ("", False))
+def test_purchase_places_sends_code_500_if_cant_buy_places(client, clubs, competitions):
     request_form = {
         "competition": "Competition one",
         "club": "Club one",
-        "places": "1"
+        "places": "13"
     }
     response = client.post('/purchasePlaces', data=request_form)
     assert response.status_code == 500
 
 
-def test_purchase_places_sends_code_200_if_can_buy_places(monkeypatch, client, clubs, competitions):
-    monkeypatch.setattr("application.server.can_buy_places", lambda a, b, c, d: ("", True))
+def test_purchase_places_sends_code_200_if_can_buy_places(client, clubs, competitions):
     request_form = {
         "competition": "Competition one",
         "club": "Club one",
