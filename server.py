@@ -48,10 +48,10 @@ def show_points():
 
 @app.route('/book/<competition>/<club>')
 def book(competition,club):
-    foundClub = [c for c in clubs if c['name'] == club][0]
-    foundCompetition = [c for c in competitions if c['name'] == competition][0]
-    if foundClub and foundCompetition:
-        return render_template('booking.html',club=foundClub,competition=foundCompetition)
+    foundClubs = [c for c in clubs if c['name'] == club]
+    foundCompetitions = [c for c in competitions if c['name'] == competition]
+    if foundClubs and foundCompetitions:
+        return render_template('booking.html',club=foundClubs[0],competition=foundCompetitions[0])
     else:
         flash("Something went wrong-please try again")
         return render_template('welcome.html', club=club, competitions=competitions), 500
@@ -90,7 +90,3 @@ def can_buy_places(club: dict, competition: dict, required_places: int, already_
 @app.route('/logout')
 def logout():
     return redirect(url_for('index'))
-
-
-
-
