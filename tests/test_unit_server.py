@@ -1,3 +1,4 @@
+import time
 import datetime
 
 import pytest
@@ -12,9 +13,11 @@ def client():
         yield client
 
 
-now = datetime.datetime.now()
-tomorrow = now.replace(day=now.day+1).strftime(server.DATE_PATTERN)
-yesterday = now.replace(day=now.day-1).strftime(server.DATE_PATTERN)
+now = time.time()
+tomorrow_time = now + 86400
+yesterday_time = now - 86400
+tomorrow = datetime.datetime.fromtimestamp(tomorrow_time).strftime(server.DATE_PATTERN)
+yesterday = datetime.datetime.fromtimestamp(yesterday_time).strftime(server.DATE_PATTERN)
 
 
 @pytest.fixture
