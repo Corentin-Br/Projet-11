@@ -23,9 +23,9 @@ class User(HttpUser):
     @task
     def book_place(self):
         with self.client.post("/purchasePlaces", data={"competition": "Spring Festival",
-                                                         "club": "Simply Lift",
-                                                         "places": 1
-                                                         }, catch_response=True) as response:
+                                                       "club": "Simply Lift",
+                                                       "places": 1
+                                                       }, catch_response=True) as response:
             if response.status_code == 500:
                 # The purchasePlaces will send errors with the code 500 if the purchase doesn't take place. It is
                 # however a sign that the route works.
